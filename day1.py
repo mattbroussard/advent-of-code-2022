@@ -1,3 +1,5 @@
+# 12/1/2022
+# https://adventofcode.com/2022/day/1
 
 import sys
 
