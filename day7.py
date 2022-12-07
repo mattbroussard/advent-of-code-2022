@@ -83,8 +83,6 @@ def main(fname):
 
     if cmd.startswith("ls"):
       if len(cur.children) != 0:
-        print(len(cur.children))
-        import pdb; pdb.set_trace()
         raise Exception("second ls for same node %s" % cur.name)
 
       for lsLine in lines[1:]:
