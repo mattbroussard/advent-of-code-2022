@@ -46,6 +46,8 @@ def printMonkeys(monkeys, roundIndex=-1):
 def part1(monkeys, nRounds=20, divideStep=True):
   monkeys = deepcopy(monkeys)
 
+  modulo = prod(monkey.moduloTest for monkey in monkeys)
+
   for roundIndex in range(nRounds):
     # if roundIndex % 100 == 0:
     #   print("Round %d" % roundIndex)
@@ -61,6 +63,9 @@ def part1(monkeys, nRounds=20, divideStep=True):
         # step 2: boredom/division
         if divideStep:
           item = floor(item / 3)
+
+        # modular arithmetic handwave? to keep numbers from getting too big in part 2
+        item %= modulo
 
         # step 3: test
         test = item % monkey.moduloTest == 0
