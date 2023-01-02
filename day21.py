@@ -98,6 +98,9 @@ def part2(exprs):
         left = freeOp
         right = ExprNode(right, "+", staticOp, newNodeMemo)
       else:
+        # note: originally this made left into "0 - freeOp" and right into "right - staticOp",
+        # but that results in an infinite loop because that expression will fall into this same
+        # branch in the next iteration
         left = freeOp
         right = ExprNode(staticOp, "-", right, newNodeMemo)
     elif operator == "*":
