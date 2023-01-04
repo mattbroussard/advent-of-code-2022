@@ -47,18 +47,28 @@ inputLayout = {
   "T": (2, 0),
   "N": (1, 1),
   "B": (0, 2),
-  "E": (2, 1),
-  "S": (3, 0),
+  "E": (1, 2),
+  "S": (0, 3),
 }
 inputAdjacencies = {
-  "B": (    None,     None,     None,     None),
-  "T": (    None,     None,     None,     None),
-  "N": (    None,     None,     None,     None),
-  "S": (    None,     None,     None,     None),
-  "E": (    None,     None,     None,     None),
-  "W": (    None,     None,     None,     None),
+  "E": (("T", 2), ("S", 2),     None,     None),
+  "B": (    None,     None, ("W", 0), ("N", 0)),
+  "N": (("T", 3),     None, ("B", 1),     None),
+  "W": (    None,     None, ("B", 0), ("S", 0)),
+  "T": (("E", 2), ("N", 2),     None, ("S", 3)),
+  "S": (("E", 3), ("T", 1), ("W", 1),     None),
 }
-inputFlippedEdges = []
+inputFlippedEdges = [
+  "BW",
+  "ET",
+
+  # NOT the following remaining edges:
+  # "ST",
+  # "NT",
+  # "ES",
+  # "BN",
+  # "SW",
+]
 
 def expandLayout(layout, squareSize):
   return {face: (x * squareSize, y * squareSize, (x+1)*squareSize, (y+1)*squareSize) for face, (x, y) in layout.items()}
@@ -138,7 +148,7 @@ def part2(grid, instructions):
 def debugEdgeTraversal(grid):
   def labels():
     while True:
-      for c in range(25):
+      for c in range(26):
         yield chr(ord('A') + c)
 
   squareSize, layout, adjacencies, flippedEdges = checkIfSampleOrInput(grid)
@@ -176,9 +186,35 @@ def debugEdgeTraversal(grid):
         history[nextNextPos] = nextDir
 
       printGrid(grid, history)
-      print(history)
+      # print(history)
 
-def printGrid(grid, history):
+def printGrid(grid, history, downscale=True):
+  # downscale mode: take the 2 units in the corner of the large map to treat as a smaller map
+  # to make it easier to view when printed
+  squareSize, _, _, _ = checkIfSampleOrInput(grid)
+  if downscale and squareSize > sampleSquareSize:
+    def downscale(v):
+      withinSquare = v % squareSize
+      squareIndex = int((v - withinSquare) / squareSize)
+      if withinSquare < 2:
+        return squareIndex * 4 + withinSquare
+      elif withinSquare >= squareSize - 2:
+        return squareIndex * 4 + (4 - (squareSize - withinSquare))
+    def upscale(v):
+      withinSquare = v % 4
+      squareIndex = int((v - withinSquare) / 4)
+      if v < 2:
+        return squareIndex * squareSize + withinSquare
+      else:
+        return (squareIndex + 1) * squareSize - 1 - (3 - squareIndex)
+    def gridChar(pos):
+      x = upscale(pos[0])
+      y = upscale(pos[1])
+      return grid[y][x]
+
+    grid = ["".join(gridChar((x, y)) for x in range(int(len(grid[0]) / squareSize * 4))) for y in range(int(len(grid) / squareSize * 4))]
+    history = {(downscale(x), downscale(y)): v for (x, y), v in history.items()}
+
   def characterAtPosition(pos):
     if pos in history:
       val = history[pos]
